@@ -5,6 +5,7 @@ from typing import Annotated
 import datetime
 import os
 from tabulate import tabulate
+import pandas
 
 expenses_app = typer.Typer(help='Application to track your expenses')
 
@@ -49,6 +50,14 @@ class Expense:
             csv_writer = csv.writer(f)
             csv_writer.writerow(rows)
 
+    def delete_expense(self, id:int):
+        # add the ting if ID specified not in the csv file
+
+        df = pandas.read_csv(csv_file)
+        df = df[df['ID'] != id]
+        df.to_csv(csv_file, index=False)
+
+
     def list_expenses(self):
         # opens and reads file, then pretty prints the output from csv
         if not os.path.exists(csv_file):
@@ -59,11 +68,12 @@ class Expense:
             print(f'File "{csv_file}" is empty.')
             print('Please add an expense.', end='')
 
-        with open(csv_file, 'r') as f:
+        with open(csv_file, newline='') as f:
             csv_pretty_print = csv.reader(f)
-            print(tabulate(csv_pretty_print, headers='firstrow', tablefmt='pipe'))
+            print(tabulate(csv_pretty_print, headers='firstrow', tablefmt='pipe', numalign='left'))
 
     def expense_summary(self):
+        # sums up all of the expense amounts
         amounts = []
         with open(csv_file) as f:
             cf = csv.DictReader(f)
@@ -87,12 +97,22 @@ def add(
     new_expense = Expense()
     new_expense.add_expense(description, amount)
 
+# 'delete' command to delete an existing expense
+@expenses_app.command(help='Delete an expense')
+def delete(
+    id: Annotated[int, typer.Option(help='ID of an expense to delete')]
+):
+    delete_expense = Expense()
+    delete_expense.delete_expense(id)
+
+
 # 'list' command, lists all expenses
 @expenses_app.command(help='List expenses')
 def list():
     list_expenses = Expense()
     list_expenses.list_expenses()
 
+# 'summary' command, prints out sum of all expenses
 @expenses_app.command(help='List total amount for the expenses')
 def summary():
     sum_expenses = Expense()
@@ -102,25 +122,10 @@ if __name__ == "__main__":
     expenses_app()
 
 
+"""
+ADD LIKE A FUNCTION OR SOMETHING TO MAKE CODE MORE CONCISE,
+INSTEAD OF REPEATING THE SAME CHECK FILE AND CHECK FILE SIZE IN EVERY CLASS METHOD;
 
-
-
-# Strategy B – Scan all IDs and find max
-
-# Read all rows
-
-# Extract ID column
-
-# Convert to integers
-
-# Use something like max(...)
-
-# Add 1
-
-# This is safer if:
-
-# Rows might get deleted
-
-# The file might not be sorted
-
-# You want robustness
+THINKING EITHER A TING WITH A FUNCTION FOR EVERY TYPER COMMAND
+OR IDK SOME SHIT TO HAVE IT CHECK ONCE AT THE BEGINNING AND NOT EVERY TIME
+"""
