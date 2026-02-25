@@ -50,12 +50,35 @@ class Expense:
             csv_writer.writerow(rows)
 
     def list_expenses(self):
+        # opens and reads file, then pretty prints the output from csv
+        if not os.path.exists(csv_file):
+            print(f'File "{csv_file}" currently does not exist.')
+            print('Please add an expense to create the file.')
+        
+        if os.stat(csv_file).st_size == 0:
+            print(f'File "{csv_file}" is empty.')
+            print('Please add an expense.', end='')
+
         with open(csv_file, 'r') as f:
             csv_pretty_print = csv.reader(f)
             print(tabulate(csv_pretty_print, headers='firstrow', tablefmt='pipe'))
+
+    def expense_summary(self):
+        amounts = []
+        with open(csv_file) as f:
+            cf = csv.DictReader(f)
+            for row in cf:
+                amounts.append(row['Amount'])
             
-# temporary arguments and stuff
-# change adjust later
+        if len(amounts) != 0:
+            total = [int(x) for x in amounts]
+            summary = sum(total)
+        elif len(amounts) == 0:
+            summary = 0
+
+        print(f'Total expenses: ${summary}')
+
+# 'add' command to add an expense
 @expenses_app.command(help='Add a new expense')
 def add(
     description: Annotated[str, typer.Option(help='Description of the expense')],
@@ -64,10 +87,16 @@ def add(
     new_expense = Expense()
     new_expense.add_expense(description, amount)
 
+# 'list' command, lists all expenses
 @expenses_app.command(help='List expenses')
 def list():
     list_expenses = Expense()
     list_expenses.list_expenses()
+
+@expenses_app.command(help='List total amount for the expenses')
+def summary():
+    sum_expenses = Expense()
+    sum_expenses.expense_summary()
 
 if __name__ == "__main__":
     expenses_app()
