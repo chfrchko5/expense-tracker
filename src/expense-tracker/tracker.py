@@ -20,7 +20,6 @@ def check_file(file):
     else:
         return True
 
-
 class Expense:
     def add_expense(self, desc:str, amount:int):
         self.desc = desc
@@ -77,17 +76,13 @@ class Expense:
 
     def list_expenses(self):
         # opens and reads file, then pretty prints the output from csv
-        if not os.path.exists(csv_file):
-            print(f'File "{csv_file}" currently does not exist.')
-            print('Please add an expense to create the file.')
-        
-        if os.stat(csv_file).st_size == 0:
-            print(f'File "{csv_file}" is empty.')
-            print('Please add an expense.', end='')
-
-        with open(csv_file, newline='') as f:
-            csv_pretty_print = csv.reader(f)
-            print(tabulate(csv_pretty_print, headers='firstrow', tablefmt='pipe', numalign='left'))
+        if check_file(csv_file) == False:
+            print(f'File "{csv_file}" currently does not exist or is empty.')
+            print('Please add an expense to create/fill the file.')
+        else:
+            with open(csv_file, newline='') as f:
+                csv_pretty_print = csv.reader(f)
+                print(tabulate(csv_pretty_print, headers='firstrow', tablefmt='pipe', numalign='left'))
 
     def expense_summary(self):
         # sums up all of the expense amounts
