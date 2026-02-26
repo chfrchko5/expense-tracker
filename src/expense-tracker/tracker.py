@@ -1,37 +1,45 @@
 import csv
-from csv import reader
 import typer
 from typing import Annotated
 import datetime
 import os
 from tabulate import tabulate
 import pandas
+import sys
 
 expenses_app = typer.Typer(help='Application to track your expenses')
 
 csv_file = 'expenses.csv'
 csv_headers = ['ID', 'Date', 'Description', 'Amount']
 
+def check_file(file):
+    if not os.path.exists(file):
+        return False
+    elif os.stat(file).st_size == 0:
+        return 0
+    else:
+        return True
+
+
 class Expense:
     def add_expense(self, desc:str, amount:int):
         self.desc = desc
         self.amount = amount
 
-        # if file doesnt exist create and add fields into it
-        if not os.path.exists(csv_file):
+        if check_file(csv_file) == False:
             with open(csv_file, 'w') as f:
                 csv_writer = csv.writer(f)
                 csv_writer.writerow(csv_headers)
-
-        # if file exists but empty, add fields into it
-        if os.stat(csv_file).st_size == 0:
+        elif check_file(csv_file) == 0:   
             with open(csv_file, 'w') as f:
                 csv_writer = csv.writer(f)
-                csv_writer.writerow(csv_headers)
-
-        # auto id increment
-        # gets all values from ID column in csv file
-        # based on the max value calculates the next ID
+                csv_writer.writerow(csv_headers)  
+        elif check_file(csv_file) == True:
+            pass
+        else:
+            print()
+            sys.exit(1)
+            
         ids = []
         with open(csv_file) as f:
             cf = csv.DictReader(f)
