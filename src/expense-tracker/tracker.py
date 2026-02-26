@@ -76,29 +76,37 @@ class Expense:
 
     def list_expenses(self):
         # opens and reads file, then pretty prints the output from csv
-        if check_file(csv_file) == False:
+        if check_file(csv_file) == False or check_file(csv_file) == 0:
             print(f'File "{csv_file}" currently does not exist or is empty.')
             print('Please add an expense to create/fill the file.')
         else:
             with open(csv_file, newline='') as f:
                 csv_pretty_print = csv.reader(f)
                 print(tabulate(csv_pretty_print, headers='firstrow', tablefmt='pipe', numalign='left'))
+                
+        # '''
+        # ADD THE SHIT WHERE IF HEADERS EXIST BUT NO VALUES ARE IN,
+        # RETURN LIKE 0 OR EMPTY OR PRINT OUT THAT THERES NOTHING INSIDE
+        # '''
 
     def expense_summary(self):
+        if check_file(csv_file) == False or check_file(csv_file) == 0:
+            print(f'File "{csv_file}" currently does not exist or is empty.')
+        else:
         # sums up all of the expense amounts
-        amounts = []
-        with open(csv_file) as f:
-            cf = csv.DictReader(f)
-            for row in cf:
-                amounts.append(row['Amount'])
+            amounts = []
+            with open(csv_file) as f:
+                cf = csv.DictReader(f)
+                for row in cf:
+                    amounts.append(row['Amount'])
             
-        if len(amounts) != 0:
-            total = [int(x) for x in amounts]
-            summary = sum(total)
-        elif len(amounts) == 0:
-            summary = 0
+            if len(amounts) != 0:
+                total = [int(x) for x in amounts]
+                summary = sum(total)
+            elif len(amounts) == 0:
+                summary = 0
 
-        print(f'Total expenses: ${summary}')
+            print(f'Total expenses: ${summary}')
 
 # 'add' command to add an expense
 @expenses_app.command(help='Add a new expense')
