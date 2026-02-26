@@ -59,11 +59,20 @@ class Expense:
             csv_writer.writerow(rows)
 
     def delete_expense(self, id:int):
-        # add the ting if ID specified not in the csv file
-
-        df = pandas.read_csv(csv_file)
-        df = df[df['ID'] != id]
-        df.to_csv(csv_file, index=False)
+        if check_file(csv_file) == False or check_file(csv_file) == 0:
+            print("There are no available expense records to delete")
+        else:
+            ids = []
+            with open(csv_file) as f:
+                cf = csv.DictReader(f)
+                for row in cf:
+                    ids.append(row['ID'])
+            if str(id) not in ids:
+                print('ID specified does not exist')
+            elif str(id) in ids:
+                df = pandas.read_csv(csv_file)
+                df = df[df['ID'] != id]
+                df.to_csv(csv_file, index=False)
 
 
     def list_expenses(self):
@@ -128,12 +137,3 @@ def summary():
 
 if __name__ == "__main__":
     expenses_app()
-
-
-"""
-ADD LIKE A FUNCTION OR SOMETHING TO MAKE CODE MORE CONCISE,
-INSTEAD OF REPEATING THE SAME CHECK FILE AND CHECK FILE SIZE IN EVERY CLASS METHOD;
-
-THINKING EITHER A TING WITH A FUNCTION FOR EVERY TYPER COMMAND
-OR IDK SOME SHIT TO HAVE IT CHECK ONCE AT THE BEGINNING AND NOT EVERY TIME
-"""
