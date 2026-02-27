@@ -1,6 +1,6 @@
 import csv
 import typer
-from typing import Annotated
+from typing import Annotated, Optional
 import datetime
 import os
 from tabulate import tabulate
@@ -83,28 +83,39 @@ class Expense:
             with open(csv_file, newline='') as f:
                 csv_pretty_print = csv.reader(f)
                 print(tabulate(csv_pretty_print, headers='firstrow', tablefmt='pipe', numalign='left'))
-                
-        # '''
-        # ADD THE SHIT WHERE IF HEADERS EXIST BUT NO VALUES ARE IN,
-        # RETURN LIKE 0 OR EMPTY OR PRINT OUT THAT THERES NOTHING INSIDE
-        # '''
 
-    def expense_summary(self):
+    def expense_summary(self, month=None):
         if check_file(csv_file) == False or check_file(csv_file) == 0:
             print(f'File "{csv_file}" currently does not exist or is empty.')
         else:
         # sums up all of the expense amounts
-            amounts = []
-            with open(csv_file) as f:
-                cf = csv.DictReader(f)
-                for row in cf:
-                    amounts.append(row['Amount'])
-            
-            if len(amounts) != 0:
-                total = [int(x) for x in amounts]
-                summary = sum(total)
-            elif len(amounts) == 0:
-                summary = 0
+            if month == None:
+                amounts = []
+                with open(csv_file) as f:
+                    cf = csv.DictReader(f)
+                    for row in cf:
+                        amounts.append(row['Amount'])
+                if len(amounts) != 0:
+                    total = [int(x) for x in amounts]
+                    summary = sum(total)
+                elif len(amounts) == 0:
+                    summary = 0
+            elif 1 <= month <= 12:
+                with open(csv_file) as f:
+                    amounts = []
+                    cf = csv.DictReader(f)
+                    for row in cf:
+                        date = datetime.datetime.strptime(row['Date'], "%m-%d-%Y")
+                        if date.month == month:
+                            amounts.append(row['Amount'])
+                            if len(amounts) != 0:
+                                total = [int(x) for x in amounts]
+                                summary = sum(total)
+                            elif len(amounts) == 0:
+                                summary = 0
+                        elif date.month != month:
+                            print('No summaries for this month')
+                            sys.exit(1)
 
             print(f'Total expenses: ${summary}')
 
@@ -134,9 +145,18 @@ def list():
 
 # 'summary' command, prints out sum of all expenses
 @expenses_app.command(help='List total amount for the expenses')
-def summary():
-    sum_expenses = Expense()
-    sum_expenses.expense_summary()
+def summary(
+    month: Annotated[Optional[int], typer.Option(help="provide a number of the month to display summary for that month only")] = None
+):
+    if month is None:
+        sum_expenses = Expense()
+        sum_expenses.expense_summary(month)
+    elif 1 <= month <= 12:
+        sum_expenses = Expense()
+        sum_expenses.expense_summary(month)
+    else:
+        print('Please provide a valid month number (e.g., 1 for january, 2 for february, etc.)')
+        return
 
 if __name__ == "__main__":
     expenses_app()
