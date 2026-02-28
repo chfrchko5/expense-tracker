@@ -18,3 +18,6 @@ pull the repo, install requirements.txt and use the "tracker.py" located in 'src
 # list help options to start using the application
 tracker.py --help
 ```
+
+# Based on
+https://roadmap.sh/projects/expense-tracker
