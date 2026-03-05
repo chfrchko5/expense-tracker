@@ -73,7 +73,6 @@ class Expense:
                 df = df[df['ID'] != id]
                 df.to_csv(csv_file, index=False)
 
-
     def list_expenses(self):
         # opens and reads file, then pretty prints the output from csv
         if check_file(csv_file) == False or check_file(csv_file) == 0:
