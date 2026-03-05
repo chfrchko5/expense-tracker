@@ -6,6 +6,7 @@ import os
 from tabulate import tabulate
 import pandas
 import sys
+import calendar
 
 expenses_app = typer.Typer(help='Application to track your expenses')
 
@@ -101,48 +102,17 @@ class Expense:
                     summary = 0
                 print(f'Total expenses: ${summary}')
             elif 1 <= month <= 12:
+                amounts = []
                 with open(csv_file) as f:
-                    amounts = []
                     cf = csv.DictReader(f)
                     for row in cf:
                         date = datetime.datetime.strptime(row['Date'], "%m-%d-%Y")
                         if date.month == month:
-                            amounts.append(row['Amount'])
-                            if len(amounts) != 0:
-                                total = [int(x) for x in amounts]
-                                summary = sum(total)
-                            elif len(amounts) == 0:
-                                summary = 0
-                        elif date.month != month:
-                            print('No summaries for this month')
-                            sys.exit(1)
-
-                    match month:
-                        case 1:
-                            print(f"Summary for month January is ${summary}")
-                        case 2:
-                            print(f"Summary for month February is ${summary}")
-                        case 3:
-                            print(f"Summary for month March is ${summary}")
-                        case 4:
-                            print(f"Summary for month April is ${summary}")
-                        case 5:
-                            print(f"Summary for month May is ${summary}")
-                        case 6:
-                            print(f"Summary for month June is ${summary}")
-                        case 7:
-                            print(f"Summary for month July is ${summary}")
-                        case 8:
-                            print(f"Summary for month August is ${summary}")
-                        case 9:
-                            print(f"Summary for month September is ${summary}")
-                        case 10:
-                            print(f"Summary for month October is ${summary}")
-                        case 11:
-                            print(f"Summary for month November is ${summary}")
-                        case 12:
-                            print(f"Summary for month December is ${summary}")
-                                    
+                            amounts.append(int(row['Amount']))
+                summary = sum(amounts)
+                month_name = calendar.month_name[month]
+                print(f"Summary for month {month_name} is {summary}")
+                
 # 'add' command to add an expense
 @expenses_app.command(help='Add a new expense')
 def add(
